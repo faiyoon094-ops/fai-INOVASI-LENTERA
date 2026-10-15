@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#2a1a9e">
+<meta name="mobile-web-app-capable" content="yes">
+<title>LENTERA – Literasi dan Kreasi Teks Anekdot Remaja</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@600;800&display=swap">
+<style>
+:root{
+  --ink:#2b1a7a; --violet:#5b2fe0; --deep:#2a1a9e; --sun:#ffc928; --sun-d:#e9a900;
+  --cream:#fff8e1; --lav:#efe9ff; --ok:#1fa85a; --ok-bg:#dff7e8; --bad:#e0354f; --bad-bg:#fde3e8;
+  --display:'Baloo 2','Trebuchet MS','Segoe UI',system-ui,sans-serif;
+  --body:'Nunito','Segoe UI',system-ui,-apple-system,sans-serif;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px);background:var(--deep)}
+body{margin:0;height:100%;background:var(--deep);overflow:hidden;font-family:var(--body);-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+*{box-sizing:border-box}
+button{font-family:inherit;cursor:pointer;border:0;padding:0;background:none;color:inherit}
+#viewport{height:100%;width:100%;display:flex;overflow-x:hidden;overflow-y:auto;background:linear-gradient(#3a22c0,#2a1a9e)}
+#wrap{margin:auto;flex:none;position:relative;overflow:hidden}
+#stage{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:0 0;background:var(--deep);overflow:hidden}
+.page{position:absolute;inset:0;background-size:100% 100%;background-repeat:no-repeat;opacity:0;visibility:hidden;transition:opacity .22s ease}
+.page.on{opacity:1;visibility:visible}
+@media (prefers-reduced-motion:reduce){.page{transition:none}}
+
+/* responsif: HP, tablet, laptop */
+#viewport{padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
+.side{display:none;flex:1 1 0;min-width:260px;max-width:420px;flex-direction:column;justify-content:center;gap:14px;padding:32px;color:#fff;user-select:text;-webkit-user-select:text}
+.side h1{margin:0;font:800 56px/1 var(--display);letter-spacing:.04em;color:var(--sun)}
+.side p{margin:0;font:600 17px/1.55 var(--body);color:rgba(255,255,255,.86)}
+.side ul{margin:0;padding-left:20px;font:600 16px/1.7 var(--body);color:rgba(255,255,255,.86)}
+.side kbd{background:rgba(255,255,255,.16);border-radius:6px;padding:1px 8px;font:800 14px var(--body)}
+.side.r{align-items:flex-start}
+@media (min-width:700px) and (min-aspect-ratio:1/1){
+  #viewport{padding-top:22px;padding-bottom:22px;background:radial-gradient(circle at 20% 15%,#4a2fd6,transparent 45%),radial-gradient(circle at 85% 85%,#6a3fe0,transparent 40%),linear-gradient(#2a1a9e,#1c1170)}
+  #wrap{border-radius:30px;box-shadow:0 24px 70px rgba(0,0,0,.5),0 0 0 8px rgba(255,255,255,.1)}
+}
+@media (min-width:1100px) and (min-aspect-ratio:1/1){.side{display:flex}}
+
+/* hotspot */
+.hs{position:absolute;border-radius:36px;background:transparent;outline:none;transition:background .12s,transform .12s}
+.hs:active{background:rgba(255,255,255,.28);transform:scale(.97)}
+.hs:focus-visible{outline:6px solid var(--sun)}
+body.debug .hs{outline:3px solid #0f0;background:rgba(0,255,0,.18)}
+
+/* native page chrome */
+.native{background:
+  radial-gradient(circle at 12% 8%,rgba(255,255,255,.14) 0 110px,transparent 112px),
+  radial-gradient(circle at 92% 22%,rgba(255,201,40,.18) 0 70px,transparent 72px),
+  radial-gradient(circle at 80% 92%,rgba(255,255,255,.1) 0 160px,transparent 162px),
+  linear-gradient(170deg,#5a33ea 0%,#3b23c4 45%,#2a1a9e 100%)}
+.nlogo{position:absolute;left:50%;top:34px;transform:translateX(-50%);background:#fff;border-radius:60px;padding:14px 40px;font:800 32px var(--display);color:var(--ink);box-shadow:0 8px 20px rgba(0,0,0,.25);white-space:nowrap}
+.nlogo b{color:#6dbb1a}
+.nhead{position:absolute;left:0;right:0;top:130px;text-align:center}
+.nhead h1{margin:0;white-space:nowrap;font:800 88px/1 var(--display);color:#fff;-webkit-text-stroke:14px #3a1fb0;paint-order:stroke fill;text-shadow:0 10px 0 #2a1a9e}
+.nhead .sub{display:inline-block;margin-top:22px;padding:12px 44px;border-radius:50px;background:var(--sun);color:var(--ink);font:800 38px var(--display);box-shadow:0 8px 0 var(--sun-d)}
+.ncard{position:absolute;left:40px;top:400px;width:1000px;height:1260px;background:#fff;border-radius:60px;box-shadow:0 20px 40px rgba(0,0,0,.35);padding:44px;overflow:auto;color:var(--ink)}
+.ncard h2{margin:0 0 12px;font:800 50px var(--display)}
+.ncard p{margin:0 0 14px;font:600 34px/1.4 var(--body)}
+
+/* round nav buttons */
+.nb{position:absolute;display:grid;place-items:center;border-radius:50%;transition:transform .12s}
+.nb:active{transform:scale(.92)}
+.nb:focus-visible{outline:6px solid #fff}
+.nb-r{width:150px;height:150px;border:10px solid var(--sun);background:radial-gradient(circle at 35% 30%,#8a5cff,#4a22c8);box-shadow:0 0 0 8px rgba(255,201,40,.25),0 14px 24px rgba(0,0,0,.35)}
+.nb-h{width:180px;height:180px;border:6px solid rgba(255,255,255,.45);background:radial-gradient(circle at 35% 25%,#9b6dff,#4a22c8);box-shadow:0 14px 24px rgba(0,0,0,.35)}
+.nb svg{width:62%;height:62%}
+
+/* shared controls */
+.pill{display:inline-flex;align-items:center;justify-content:center;gap:14px;min-height:96px;padding:0 54px;border-radius:60px;background:var(--sun);color:var(--ink);font:800 44px var(--display);box-shadow:0 8px 0 var(--sun-d);transition:transform .1s,box-shadow .1s}
+.pill:active{transform:translateY(6px);box-shadow:0 2px 0 var(--sun-d)}
+.pill.alt{background:var(--lav);box-shadow:0 8px 0 #c9bcf5}
+.pill:disabled{opacity:.45;pointer-events:none}
+.pill:focus-visible{outline:6px solid var(--violet)}
+
+/* quiz */
+.qcard{position:absolute;background:#fff;border-radius:46px;padding:36px 40px;overflow:auto;color:var(--ink);display:flex;flex-direction:column}
+.qtop{display:flex;justify-content:space-between;align-items:center;font:800 36px var(--display)}
+.qbar{height:18px;border-radius:12px;background:var(--lav);margin:14px 0 24px;overflow:hidden}
+.qbar i{display:block;height:100%;background:linear-gradient(90deg,#8a5cff,var(--sun));border-radius:12px;transition:width .3s}
+.qq{font:800 42px/1.25 var(--body);margin:0 0 22px}
+.qopt{display:flex;align-items:center;gap:22px;width:100%;min-height:112px;margin-bottom:14px;padding:12px 24px;border-radius:30px;background:var(--lav);border:5px solid transparent;text-align:left;font:700 35px/1.2 var(--body);color:var(--ink);transition:background .15s,border-color .15s}
+.qopt:active{background:#e0d5ff}
+.qopt .l{flex:none;width:68px;height:68px;border-radius:50%;display:grid;place-items:center;background:var(--violet);color:#fff;font:800 36px var(--display)}
+.qopt.ok{background:var(--ok-bg);border-color:var(--ok)}.qopt.ok .l{background:var(--ok)}
+.qopt.no{background:var(--bad-bg);border-color:var(--bad)}.qopt.no .l{background:var(--bad)}
+.qopt:disabled{pointer-events:none}
+.qexp{margin:6px 0 18px;padding:18px 26px;border-radius:26px;background:var(--cream);border-left:12px solid var(--sun);font:600 32px/1.3 var(--body)}
+.qexp b{font-weight:800}
+.qfoot{margin-top:auto;display:flex;justify-content:center;padding-top:8px}
+.qres{text-align:center}
+.qscore{width:300px;height:300px;margin:6px auto 18px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--sun) var(--p),var(--lav) 0);position:relative}
+.qscore::after{content:"";position:absolute;inset:26px;border-radius:50%;background:#fff}
+.qscore span{position:relative;z-index:1;font:800 110px var(--display)}
+.qres h3{margin:0 0 8px;font:800 52px var(--display)}
+.qres p{margin:0 0 18px;font:600 34px/1.3 var(--body)}
+.qrev{text-align:left;margin:10px 0 20px}
+.qrev div{padding:14px 20px;border-radius:22px;background:var(--bad-bg);margin-bottom:10px;font:600 30px/1.25 var(--body)}
+.qrev div b{display:block;color:var(--ok);font-weight:800}
+.qbtns{display:flex;gap:20px;justify-content:center;flex-wrap:wrap}
+
+/* writing */
+.wta{position:absolute;border:0;outline:0;resize:none;background:transparent;font:600 36px/1.5 var(--body);color:var(--ink);padding:8px 14px;user-select:text;-webkit-user-select:text;
+  background-image:repeating-linear-gradient(transparent 0 53px,#e4dcfa 53px 54px);background-attachment:local}
+.wta::placeholder{color:#a79bd6}
+.wtools{position:absolute;display:flex;gap:12px;align-items:center}
+.wt{height:64px;padding:0 26px;border-radius:32px;background:var(--violet);color:#fff;font:800 30px var(--display);box-shadow:0 5px 0 #3a1fb0}
+.wt:active{transform:translateY(4px);box-shadow:0 1px 0 #3a1fb0}
+.wt.pd{background:var(--sun);color:var(--ink);box-shadow:0 5px 0 var(--sun-d)}
+.wt.d{background:#e0354f;box-shadow:0 5px 0 #a8203a}
+.wcount{margin-left:auto;font:800 30px var(--display);color:var(--violet)}
+.topic.sel{border:6px solid var(--sun);background:rgba(255,201,40,.22)}
+
+/* games */
+.gh{display:flex;flex-direction:column;gap:26px}
+.gtile{display:flex;align-items:center;gap:34px;width:100%;padding:30px 36px;border-radius:44px;text-align:left;color:var(--ink);box-shadow:0 10px 0 rgba(0,0,0,.14);transition:transform .1s}
+.gtile:active{transform:translateY(7px)}
+.gtile .ic{flex:none;width:170px;height:170px;border-radius:40px;display:grid;place-items:center;font-size:96px;background:rgba(255,255,255,.7)}
+.gtile h3{margin:0 0 8px;font:800 52px/1 var(--display)}
+.gtile p{margin:0;font:600 31px/1.3 var(--body)}
+.gt1{background:#ffe8a3}.gt2{background:#cfe8ff}.gt3{background:#e6d9ff}
+.ginfo{font:700 30px/1.3 var(--body);margin:0 0 16px;color:#4b3aa8}
+.slot{display:flex;align-items:center;gap:18px;min-height:86px;margin-bottom:10px;padding:8px 20px;border-radius:28px;border:5px dashed #c9bcf5;background:#faf8ff;font:700 33px/1.2 var(--body);text-align:left;width:100%}
+.slot .n{flex:none;width:58px;height:58px;border-radius:50%;display:grid;place-items:center;background:var(--sun);font:800 34px var(--display)}
+.slot.f{border-style:solid;border-color:var(--violet);background:var(--lav)}
+.slot.ok{border-color:var(--ok);background:var(--ok-bg)}
+.slot.no{border-color:var(--bad);background:var(--bad-bg)}
+.bank{display:flex;flex-wrap:wrap;gap:12px;margin:14px 0 14px;min-height:90px}
+.chip{padding:13px 24px;border-radius:40px;background:var(--violet);color:#fff;font:800 31px var(--display);box-shadow:0 6px 0 #3a1fb0}
+.chip:active{transform:translateY(5px);box-shadow:0 1px 0 #3a1fb0}
+.gmsg{min-height:46px;font:800 33px/1.2 var(--display);margin:0 0 10px;text-align:center}
+.mcard{padding:14px 20px 14px;margin-bottom:12px;border-radius:32px;background:#faf8ff;border:5px solid #e4dcfa}
+.mcard.ok{border-color:var(--ok);background:var(--ok-bg)}.mcard.no{border-color:var(--bad);background:var(--bad-bg)}
+.mcard q{display:block;quotes:none;font:700 28px/1.22 var(--body);margin-bottom:10px}
+.mrow{display:flex;gap:10px}
+.mchip{flex:1;height:60px;border-radius:30px;background:var(--lav);font:800 25px var(--display);color:var(--ink);border:4px solid transparent}
+.mchip.s{background:var(--violet);color:#fff}
+.mchip.right{background:var(--ok);color:#fff}
+.mchip.wrong{background:var(--bad);color:#fff}
+
+/* profile */
+.avatar{width:260px;height:260px;margin:0 auto 20px;border-radius:50%;background:linear-gradient(160deg,#9b6dff,#4a22c8);display:grid;place-items:center;border:10px solid var(--sun)}
+.avatar svg{width:70%;height:70%}
+.prow{padding:18px 24px;margin-bottom:12px;border-radius:26px;background:var(--lav)}
+.prow small{display:block;font:800 26px var(--display);color:var(--violet);margin-bottom:2px}
+.prow span{font:700 36px/1.2 var(--body)}
+
+/* video2 overlay */
+.v2panel{position:absolute;left:0;top:966px;width:1080px;height:700px;
+  background:linear-gradient(180deg,#2a0bd0 0%,#3f1fe0 55%,#6a45f5 100%);
+  -webkit-mask-image:linear-gradient(#000 0 94%,transparent);mask-image:linear-gradient(#000 0 94%,transparent)}
+.v2bar{position:absolute;left:14px;top:0;width:1052px;height:136px;background:#fff;border-radius:0 0 44px 44px;padding:0 12px 12px}
+.v2bar button{width:100%;height:100%;display:flex;align-items:center;gap:28px;padding:0 34px;border-radius:0 0 34px 34px;background:#16163a;color:#fff;font:700 32px var(--body)}
+.v2bar .tr{flex:1;height:12px;border-radius:8px;background:rgba(255,255,255,.3);position:relative}
+.v2bar .tr i{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:8px;background:#9b7bff}
+.v2tag{position:absolute;left:30px;top:166px;padding:10px 60px;border-radius:40px;background:var(--sun);font:800 48px var(--display);color:var(--ink)}
+.v2desc{position:absolute;left:30px;top:236px;width:1020px;padding:28px 44px;border-radius:44px;background:var(--lav);font:600 34px/1.35 var(--body);color:var(--ink)}
+
+/* overlays */
+.toast{position:absolute;left:50%;bottom:300px;transform:translateX(-50%) translateY(20px);max-width:900px;padding:22px 44px;border-radius:50px;background:rgba(20,10,80,.94);color:#fff;font:700 38px/1.25 var(--body);text-align:center;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:50}
+.toast.on{opacity:1;transform:translateX(-50%)}
+.dlg{position:absolute;inset:0;background:rgba(10,5,60,.7);display:none;place-items:center;z-index:60}
+.dlg.on{display:grid}
+.dlg .box{width:820px;padding:50px;border-radius:50px;background:#fff;text-align:center;color:var(--ink)}
+.dlg .box p{margin:0 0 34px;font:700 42px/1.3 var(--body)}
+.dlg .row{display:flex;gap:20px;justify-content:center}
+#vid,#zoom{position:fixed;inset:0;z-index:100;display:none;background:rgba(8,4,40,.96);flex-direction:column}
+#vid.on,#zoom.on{display:flex}
+.ovbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:calc(env(safe-area-inset-top,0px) + 12px) 16px 12px;color:#fff;font:800 18px var(--display)}
+.ovbar button{flex:none;width:46px;height:46px;border-radius:50%;background:var(--sun);color:var(--ink);font:800 24px var(--display)}
+.ovbody{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:0 12px 18px}
+.ovbody video,.ovbody iframe{width:100%;max-height:100%;border:0;border-radius:14px;background:#000;aspect-ratio:16/9}
+.novid{max-width:520px;text-align:center;color:#fff;background:#3b23c4;padding:34px 28px;border-radius:28px;font:600 18px/1.4 var(--body)}
+.novid b{display:block;font:800 26px var(--display);margin-bottom:10px;color:var(--sun)}
+#zoomScroll{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y pinch-zoom}
+#zoomScroll img{display:block;width:210vw;max-width:none;height:auto}
+</style>
+</head>
+<body>
+<div id="viewport"><aside class="side l"><h1>LENTERA</h1><p>Literasi dan Kreasi Teks Anekdot Remaja</p><p>Media pembelajaran interaktif Bahasa Indonesia untuk kelas X.</p></aside><div id="wrap"><div id="stage"></div></div><aside class="side r"><p><b>Cara memakai</b></p><ul><li>Klik tombol bergambar untuk berpindah halaman.</li><li>Ikon rumah membawa kembali ke Menu Awal.</li><li>Tekan <kbd>Esc</kbd> untuk menutup video atau gambar yang diperbesar.</li><li>Tekan <kbd>F11</kbd> untuk layar penuh.</li></ul></aside></div>
+
+<div id="vid" role="dialog" aria-modal="true"><div class="ovbar"><span id="vidTitle"></span><button id="vidClose" aria-label="Tutup video">✕</button></div><div class="ovbody" id="vidBody"></div></div>
+<div id="zoom" role="dialog" aria-modal="true"><div class="ovbar"><span>Cubit atau geser untuk memperbesar</span><button id="zoomClose" aria-label="Tutup">✕</button></div><div id="zoomScroll"><img id="zoomImg" alt="Infografis"></div></div>
+
+<script>
+/* ============ KONFIGURASI (ubah di sini) ============ */
+const CONFIG={
+  videos:{
+    langkah:{title:'Langkah-Langkah Menulis Teks Anekdot', src:'https://youtu.be/vk8piPIqotc'},   // isi: 'video/langkah.mp4' atau link YouTube
+  },
+  developer:{
+    nama:'Nama Pengembang', nim:'NIM / NPM', prodi:'Pendidikan Profesi Guru',
+    kampus:'UMSURA', pembimbing:'Nama Dosen Pembimbing', kontak:'email@contoh.ac.id'
+  }
+};
+/* ====================================================== */
+
+const IMGS={splash:"assets/splash.jpg",menu:"assets/menu.jpg",panduan:"assets/panduan.jpg",cp:"assets/cp.jpg",pembelajaran:"assets/pembelajaran.jpg",materi:"assets/materi.jpg",video1:"assets/video1.jpg",profil:"assets/profil.jpg",infografis:"assets/infografis.jpg",game_intro:"assets/game_intro.jpg",anekdot:"assets/anekdot.jpg",kuis:"assets/kuis.jpg",menulis:"assets/menulis.jpg"};
+
+const $=(s,r=document)=>r.querySelector(s);
+const el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e};
+const cb=(cx,cy,r)=>[cx-r,cy-r,2*r,2*r];
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+
+const stage=$('#stage'), wrap=$('#wrap');
+const IC={
+  back:'<svg viewBox="0 0 48 48" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"><path d="M29 9 14 24l15 15"/></svg>',
+  next:'<svg viewBox="0 0 48 48" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"><path d="M19 9l15 15-15 15"/></svg>',
+  home:'<svg viewBox="0 0 64 64"><path d="M6 31 32 8l26 23" fill="none" stroke="#ffc928" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/><path d="M13 29v26h38V29L32 13z" fill="#ffd95a"/><rect x="26" y="36" width="12" height="19" rx="6" fill="#5b2fe0"/></svg>',
+  user:'<svg viewBox="0 0 64 64"><circle cx="32" cy="22" r="12" fill="#fff"/><path d="M8 58c2-14 12-20 24-20s22 6 24 20z" fill="#fff"/></svg>'
+};
+
+/* ---------- Toast & dialog ---------- */
+let toastT;
+function toast(msg){let t=$('.toast',stage);if(!t){t=el('div','toast');stage.appendChild(t)}t.textContent=msg;t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('on'),2200)}
+function ask(msg,yes,no='Batal'){
+  let d=$('.dlg',stage);if(!d){d=el('div','dlg');stage.appendChild(d)}
+  d.innerHTML='<div class="box"><p></p><div class="row"></div></div>';$('p',d).textContent=msg;
+  const row=$('.row',d);
+  const b1=el('button','pill alt',no), b2=el('button','pill',yes.label);
+  b1.onclick=()=>d.classList.remove('on'); b2.onclick=()=>{d.classList.remove('on');yes.fn()};
+  row.append(b1,b2);d.classList.add('on');
+}
+
+/* ---------- Navigasi ---------- */
+const stack=[];let current=null,histOK=false;
+function show(id){
+  document.querySelectorAll('.page.on').forEach(p=>p.classList.remove('on'));
+  const sec=$('#p-'+id);sec.classList.add('on');current=id;
+  const p=PAGES[id];p.enter&&p.enter(sec);
+}
+function go(id){if(id===current)return;stack.push(id);try{history.pushState({n:stack.length},'');histOK=true}catch(e){}show(id)}
+function back(){
+  if(stack.length>1){ if(histOK){history.back()} else {stack.pop();show(stack[stack.length-1])} }
+  else toast('Ini halaman pertama');
+}
+function home(){current==='menu'?toast('Kamu sudah di Menu Awal'):go('menu')}
+window.addEventListener('popstate',()=>{if(stack.length>1){stack.pop();show(stack[stack.length-1])}});
+
+function act(h){
+  if(h.go)return go(h.go);
+  if(h.act==='back')return back();
+  if(h.act==='home')return home();
+  if(h.toast)return toast(h.toast);
+  if(h.video)return openVideo(h.video);
+  if(h.zoom)return openZoom(h.zoom);
+  if(h.fn)return h.fn();
+}
+const BACK=(x,y)=>({r:cb(x,y,80),act:'back',label:'Kembali'});
+const HOME=(x,y)=>({r:cb(x,y,95),act:'home',label:'Beranda'});
+const NEXT=(x,y,go)=>({r:cb(x,y,80),go,label:'Selanjutnya'});
+
+/* ---------- Video & zoom ---------- */
+function openVideo(key){
+  const v=CONFIG.videos[key], body=$('#vidBody');$('#vidTitle').textContent=v.title;body.innerHTML='';
+  const src=(v.src||'').trim();
+  const yt=src.match(/(?:youtu\.be\/|v=|embed\/)([\w-]{11})/);
+  if(yt){const f=el('iframe');f.src='https://www.youtube.com/embed/'+yt[1]+'?rel=0&playsinline=1';f.allow='autoplay; fullscreen; picture-in-picture';f.referrerPolicy='strict-origin-when-cross-origin';f.allowFullscreen=true;body.appendChild(f);body.style.flexDirection='column';body.style.gap='16px';const a=el('a',null,'Video tidak tampil? Buka di YouTube');a.href='https://www.youtube.com/watch?v='+yt[1];a.target='_blank';a.rel='noopener';a.style.cssText='color:#fff;font:800 15px var(--body);padding:10px 20px;border-radius:24px;background:rgba(255,255,255,.18);text-decoration:none';body.appendChild(a)}
+  else if(src){const m=el('video');m.src=(window.__VID&&/\.mp4$/.test(src))?window.__VID():src;m.controls=true;m.playsInline=true;m.autoplay=true;
+    m.onerror=()=>{const c=m.error?m.error.code:'?';body.innerHTML='';body.appendChild(el('div','novid','<b>Video tidak dapat dimuat</b>Kode kesalahan: '+c+'. Coba muat ulang halaman.'))};
+    body.appendChild(m)}
+  else body.appendChild(el('div','novid','<b>Video belum tersedia</b>Pengembang belum memasang file video untuk bagian ini. Sementara itu, kamu bisa mempelajari materinya lewat Infografis atau Belajar Bermain.'));
+  $('#vid').classList.add('on');
+}
+function closeVideo(){const b=$('#vidBody');b.innerHTML='';$('#vid').classList.remove('on')}
+$('#vidClose').onclick=closeVideo;
+function openZoom(key){$('#zoomImg').src=IMGS[key];$('#zoom').classList.add('on');$('#zoomScroll').scrollTo(0,0)}
+$('#zoomClose').onclick=()=>$('#zoom').classList.remove('on');
+
+/* ---------- Data kuis ---------- */
+const QUIZ=[
+ {q:'Apa yang dimaksud dengan teks anekdot?',o:['Cerita singkat yang lucu dan mengandung kritik atau sindiran','Berita faktual tentang peristiwa terkini','Cerita fantasi tentang makhluk ajaib','Teks petunjuk cara membuat sesuatu'],e:'Anekdot adalah cerita singkat yang menarik dan lucu, biasanya memuat kritik atau sindiran terhadap suatu keadaan.'},
+ {q:'Bagian teks anekdot yang memperkenalkan tokoh, waktu, dan tempat disebut ...',o:['Orientasi','Koda','Reaksi','Krisis'],e:'Orientasi memperkenalkan latar cerita: siapa tokohnya, kapan, dan di mana kejadiannya.'},
+ {q:'Pak RT bertanya, “Kalau Bapak buang sampah ke kali, terus rumah Bapak aman dari banjir?” Kalimat ini termasuk bagian ...',o:['Krisis','Orientasi','Koda','Reaksi'],e:'Krisis adalah puncak masalah: tokoh dihadapkan pada pertanyaan atau kejadian yang membuat kritiknya terasa.'},
+ {q:'Warga menanggapi, “Wah, pantes saja rumahmu dulu pernah kebanjiran, Pak.” Bagian ini disebut ...',o:['Orientasi','Komplikasi','Reaksi','Koda'],e:'Reaksi adalah tanggapan tokoh lain atau tokoh utama terhadap krisis, sering berupa candaan atau tawa.'},
+ {q:'“Ternyata kali itu bukan tempat sampah, tapi urusan kita bersama.” Kalimat ini merupakan bagian ...',o:['Orientasi','Krisis','Reaksi','Koda'],e:'Koda adalah penutup yang berisi perubahan sikap tokoh atau kesimpulan dari cerita.'},
+ {q:'Langkah pertama dalam menulis teks anekdot adalah ...',o:['Menentukan topik','Menelaah dan merevisi','Menyusun kerangka cerita','Mengembangkan menjadi teks utuh'],e:'Penulisan dimulai dari menentukan topik yang dekat dengan kehidupan sehari-hari.'},
+ {q:'Mengapa penulis perlu mengumpulkan ide dan fakta?',o:['Agar cerita lebih menarik dan masuk akal','Agar teks menjadi sepanjang mungkin','Agar tidak perlu menyusun kerangka','Agar kritik tidak terlihat'],e:'Fakta pendukung membuat cerita terasa nyata, menarik, dan masuk akal bagi pembaca.'},
+ {q:'Langkah terakhir dalam menulis teks anekdot adalah ...',o:['Menelaah dan merevisi','Menentukan tujuan','Menentukan topik','Mengumpulkan ide'],e:'Setelah selesai menulis, periksa kembali struktur, kejelasan pesan, bahasa, ejaan, dan tanda baca.'},
+ {q:'Kritik pada anekdot “Warga yang Suka Buang Sampah di Kali” ditujukan kepada ...',o:['Warga yang membuang sampah sembarangan dan menyalahkan pemerintah','Pak RT yang mengajak kerja bakti','Pemerintah kota Surabaya','Petugas kebersihan'],e:'Anekdot menyindir warga yang tidak peduli kebersihan dan selalu melempar tanggung jawab kepada pemerintah.'},
+ {q:'Bagaimana sebaiknya kritik disampaikan dalam teks anekdot?',o:['Secara santun, dibalut humor, tanpa menyerang pribadi','Dengan kata-kata kasar agar tegas','Dengan menyebut nama orang yang sebenarnya','Tidak perlu ada kritik sama sekali'],e:'Anekdot menyampaikan kritik secara santun lewat humor, sehingga pesan mudah diterima tanpa menyakiti.'},
+ {q:'Pesan moral dari anekdot tentang sampah di kali adalah ...',o:['Menjaga kebersihan lingkungan adalah tanggung jawab bersama','Kebersihan hanya urusan pemerintah','Banjir tidak berkaitan dengan sampah','Kerja bakti tidak penting'],e:'Membuang sampah sembarangan dapat menyebabkan banjir; menjaga kebersihan adalah tanggung jawab kita semua.'}
+];
+const STEPS=['Menentukan Topik','Menentukan Tujuan','Mengumpulkan Ide dan Fakta','Menyusun Kerangka Cerita','Mengembangkan Menjadi Teks Anekdot','Menelaah dan Merevisi'];
+const PARTS=['Orientasi','Komplikasi','Krisis','Reaksi','Koda'];
+const MATCH=[
+ {t:'Suatu pagi di Surabaya, Pak RT mengajak warga kerja bakti membersihkan Kali Wonokromo.',a:0},
+ {t:'Seorang bapak santai minum kopi dan berkata lebih mudah membuang sampah ke kali.',a:1},
+ {t:'Pak RT bertanya apakah rumah Bapak aman dari banjir jika sampah dibuang ke kali.',a:2},
+ {t:'Warga bercanda, semua tertawa, dan bapak itu pun malu sendiri.',a:3},
+ {t:'Sejak itu bapak tersebut berubah dan menjadi warga paling aktif menjaga kebersihan.',a:4}
+];
+const TOPICS=['Kebiasaan buang sampah sembarangan di lingkungan','Keterlambatan di sekolah','Penggunaan gawai yang berlebihan','Layanan publik yang kurang maksimal'];
+
+/* ---------- Komponen: tombol navigasi native ---------- */
+function navNative(sec,{back:b=true,next=null}={}){
+  const mk=(cls,x,y,icon,fn,label)=>{const e=el('button','nb '+cls,IC[icon]);e.style.left=x+'px';e.style.top=y+'px';e.setAttribute('aria-label',label);e.onclick=fn;sec.appendChild(e)};
+  if(b)mk('nb-r',145,1715,'back',back,'Kembali');
+  mk('nb-h',450,1700,'home',home,'Beranda');
+  if(next)mk('nb-r',770,1715,'next',()=>go(next),'Selanjutnya');
+}
+function nativeHead(sec,title,sub){
+  sec.append(el('div','nlogo','<b>UM</b>SURA · Pendidikan Profesi Guru'));
+  sec.append(el('div','nhead',`<h1>${title}</h1>${sub?`<span class="sub">${sub}</span>`:''}`));
+}
+
+/* ---------- Halaman ---------- */
+const PAGES={
+ splash:{img:'splash',hs:[{r:[220,1660,710,150],go:'menu',label:'Mulai Belajar'}]},
+ menu:{img:'menu',hs:[
+   {r:[125,680,400,395],go:'panduan',label:'Panduan Penggunaan Media'},
+   {r:[550,680,395,400],go:'cp',label:'CP dan TP'},
+   {r:[130,1090,400,380],go:'pembelajaran',label:'Menu Pembelajaran'},
+   {r:[565,1095,390,390],go:'profil',label:'Profil Pengembang'},
+   BACK(222,1650),HOME(540,1650),NEXT(843,1660,'pembelajaran')]},
+ panduan:{img:'panduan',hs:[
+   {r:[55,585,230,270],go:'menu',label:'Menu Awal'},
+   {r:[557,685,157,195],go:'materi',label:'Materi'},
+   {r:[728,685,148,195],go:'kuis',label:'Kuis'},
+   {r:[888,685,148,195],go:'menulis',label:'Laman Menulis'},
+   {r:[35,1050,240,285],go:'cp',label:'CP dan TP'},
+   {r:[575,1140,200,225],go:'profil',label:'Profil Pengembang'},
+   {r:[35,1525,268,208],go:'menu',label:'Beranda'},
+   {r:[312,1525,235,208],act:'back',label:'Kembali'},
+   {r:[553,1525,235,208],toast:'Tombol “Selanjutnya” membawa ke halaman berikutnya.',label:'Selanjutnya'},
+   {r:[796,1525,235,208],toast:'Tombol “Opsi Lainnya” menampilkan pilihan tambahan.',label:'Opsi Lainnya'},
+   BACK(162,1790),HOME(545,1795)]},
+ cp:{img:'cp',hs:[BACK(222,1775),HOME(540,1775)]},
+ pembelajaran:{img:'pembelajaran',hs:[
+   {r:[65,665,460,490],go:'materi',label:'Materi'},
+   {r:[555,665,450,490],go:'kuis',label:'Kuis'},
+   {r:[290,1195,500,470],go:'menulis',label:'Laman Menulis'},
+   BACK(222,1775),HOME(540,1775)]},
+ materi:{img:'materi',hs:[
+   {r:[45,610,995,330],go:'video1',label:'Video'},
+   {r:[45,968,995,350],go:'infografis',label:'Infografis'},
+   {r:[45,1342,995,340],go:'game_intro',label:'Belajar Bermain'},
+   BACK(222,1775),HOME(540,1775)]},
+ video1:{img:'video1',hs:[
+   {r:[40,560,1000,640],video:'langkah',label:'Putar video langkah-langkah menulis anekdot'},
+   BACK(220,1777),HOME(541,1774)]},
+ infografis:{img:'infografis',hs:[
+   {r:[0,430,1080,1290],zoom:'infografis',label:'Perbesar infografis'},
+   BACK(225,1815),HOME(545,1820)],
+   enter(){toast('Ketuk infografis untuk memperbesar')}},
+ game_intro:{img:'game_intro',hs:[
+   {r:[245,1180,600,215],go:'gamehub',label:'Mulai'},
+   BACK(220,1795),HOME(540,1790),NEXT(845,1800,'anekdot')]},
+ anekdot:{img:'anekdot',hs:[BACK(112,1835),HOME(540,1845)]},
+ kuis:{img:'kuis',hs:[BACK(220,1790),HOME(540,1790)],extra:buildQuiz},
+ menulis:{img:'menulis',hs:[BACK(220,1790),HOME(540,1790)],extra:buildMenulis,enter(){}},
+ gamehub:{native:true,build(sec){
+   nativeHead(sec,'Belajar Bermain','Pilih permainan');
+   const c=el('div','ncard gh');
+   c.innerHTML=`<button class="gtile gt1" data-g="game1"><span class="ic">🧩</span><span><h3>Susun Langkah</h3><p>Urutkan 6 langkah menulis teks anekdot dengan benar.</p></span></button>
+   <button class="gtile gt2" data-g="game2"><span class="ic">🔎</span><span><h3>Cocokkan Struktur</h3><p>Tentukan bagian struktur dari potongan teks anekdot.</p></span></button>
+   <button class="gtile gt3" data-g="anekdot"><span class="ic">📖</span><span><h3>Baca Contoh Anekdot</h3><p>Pelajari struktur anekdot “Warga yang Suka Buang Sampah di Kali”.</p></span></button>`;
+   c.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>go(b.dataset.g));
+   sec.append(c);navNative(sec);}},
+ game1:{native:true,build:buildGame1,enter(){}},
+ game2:{native:true,build:buildGame2},
+ profil:{img:'profil',hs:[
+   BACK(217,1805),
+   {r:cb(540,1810,92),go:'menu',label:'Beranda (Menu Awal)'}]}
+};
+
+
+/* ---------- Quiz ---------- */
+function buildQuiz(sec){
+  const card=el('div','qcard');card.style.cssText='left:35px;top:515px;width:1010px;height:1170px';sec.append(card);
+  let order,i,score,wrong,locked;
+  function start(){order=shuffle(QUIZ.map((_,k)=>k));i=0;score=0;wrong=[];render()}
+  function render(){
+    if(i>=order.length)return result();
+    const q=QUIZ[order[i]];locked=false;
+    const opts=shuffle(q.o.map((t,k)=>({t,ok:k===0})));
+    card.innerHTML=`<div class="qtop"><span>Soal ${i+1} dari ${order.length}</span><span>Skor ${score*10}</span></div>
+      <div class="qbar"><i style="width:${i/order.length*100}%"></i></div><p class="qq"></p><div class="qopts"></div><div class="qexp" hidden></div><div class="qfoot"></div>`;
+    $('.qq',card).textContent=q.q;
+    const box=$('.qopts',card);
+    opts.forEach((o,k)=>{
+      const b=el('button','qopt',`<span class="l">${'ABCD'[k]}</span><span></span>`);b.lastChild.textContent=o.t;
+      b.onclick=()=>{
+        if(locked)return;locked=true;
+        const all=[...box.children];
+        all.forEach((x,n)=>{x.disabled=true;if(opts[n].ok)x.classList.add('ok')});
+        if(o.ok){score++}else{b.classList.add('no');wrong.push({q:q.q,a:opts.find(x=>x.ok).t})}
+        const ex=$('.qexp',card);ex.hidden=false;ex.innerHTML=`<b>${o.ok?'Benar! ':'Belum tepat. '}</b>`;ex.append(q.e);
+        const nx=el('button','pill',i===order.length-1?'Lihat Hasil':'Soal Berikutnya');nx.onclick=()=>{i++;render()};
+        $('.qfoot',card).append(nx);card.scrollTo({top:card.scrollHeight,behavior:'smooth'});
+      };
+      box.append(b);
+    });
+  }
+  function result(){
+    const pct=Math.round(score/order.length*100);
+    const msg=pct>=80?'Hebat! Kamu sudah paham teks anekdot.':pct>=60?'Bagus! Pelajari lagi bagian yang masih keliru.':'Ayo belajar lagi lewat Materi, lalu coba kuis ini kembali.';
+    card.innerHTML=`<div class="qres"><div class="qscore" style="--p:${pct}%"><span>${pct}</span></div><h3>${score} dari ${order.length} soal benar</h3><p>${msg}</p>
+      ${wrong.length?'<div class="qrev"></div>':''}<div class="qbtns"></div></div>`;
+    const rev=$('.qrev',card);
+    wrong.forEach(w=>{const d=el('div');d.textContent=w.q;const b=el('b');b.textContent='Jawaban benar: '+w.a;d.append(b);rev.append(d)});
+    const btns=$('.qbtns',card);
+    const r=el('button','pill','Ulangi Kuis');r.onclick=start;
+    const m=el('button','pill alt','Buka Materi');m.onclick=()=>go('materi');
+    btns.append(r,m);card.scrollTop=0;
+  }
+  start();
+}
+
+/* ---------- Laman menulis ---------- */
+const PADLET='https://padlet.com/faiyoon094/menulis-teks-anekdot-s024fa4tey3gba6uj3yo';
+function buildMenulis(sec){
+  const ta=el('textarea','wta');ta.style.cssText='left:72px;top:1078px;width:956px;height:446px';
+  ta.placeholder='Ketik teks anekdotmu di sini…';ta.value=store.get('lentera.teks')||'';
+  ta.setAttribute('aria-label','Teks anekdotmu');ta.spellcheck=true;sec.append(ta);
+  const tools=el('div','wtools');tools.style.cssText='left:80px;top:1544px;width:940px;height:64px';
+  const mk=(txt,fn,c='')=>{const b=el('button','wt '+c,txt);b.onclick=fn;return b};
+  const count=el('span','wcount','0 kata');
+  const wc=()=>{const n=(ta.value.trim().match(/\S+/g)||[]).length;count.textContent=n+' kata'};
+  const save=(quiet)=>{store.set('lentera.teks',ta.value);store.set('lentera.topik',String(topicSel));if(!quiet)toast('Tulisanmu tersimpan di perangkat')};
+  ta.addEventListener('input',()=>{wc();store.set('lentera.teks',ta.value)});
+  const copy=async txt=>{try{await navigator.clipboard.writeText(txt);return true}catch(e){try{const t=el('textarea');t.value=txt;t.style.cssText='position:fixed;opacity:0';document.body.appendChild(t);t.select();const ok=document.execCommand('copy');t.remove();return ok}catch(_){return false}}};
+  tools.append(
+    mk('Simpan',()=>save()),
+    mk('Salin',async()=>{if(!ta.value.trim())return toast('Belum ada tulisan untuk disalin');toast(await copy(ta.value)?'Tulisan disalin':'Gagal menyalin, tahan teks lalu pilih Salin')}),
+    mk('Kirim ke Padlet',async()=>{
+      if(!ta.value.trim())return toast('Belum ada tulisan untuk dikirim');
+      save(true);
+      const ok=await copy(ta.value);
+      toast(ok?'Tulisan disalin. Tempel (paste) di kartu Padlet yang terbuka.':'Padlet dibuka. Tahan teksmu, salin, lalu tempel di Padlet.');
+      setTimeout(()=>{const w=window.open(PADLET,'_blank','noopener');if(!w)location.href=PADLET},900);
+    },'pd'),
+    mk('Hapus',()=>{if(!ta.value)return toast('Kolom sudah kosong');ask('Hapus seluruh tulisanmu?',{label:'Ya, hapus',fn:()=>{ta.value='';topicSel=-1;paintTopics();save(true);wc();toast('Tulisan dihapus')}})},'d'),
+    count);
+  sec.append(tools);
+
+  let topicSel=parseInt(store.get('lentera.topik')||'-1',10);if(isNaN(topicSel))topicSel=-1;
+  const rows=[[497,75],[578,68],[652,70],[728,70],[806,82]];
+  const hs=[];
+  rows.forEach(([y,h],k)=>{
+    const b=el('button','hs topic');b.style.cssText=`left:605px;top:${y}px;width:427px;height:${h}px`;b.setAttribute('aria-label','Pilih topik '+(k+1));
+    b.onclick=()=>{
+      topicSel=k;paintTopics();
+      if(k<TOPICS.length){
+        let v=ta.value;const line='Topik: '+TOPICS[k];
+        v=/^Topik: .*\n*/.test(v)?v.replace(/^Topik: .*\n*/,line+'\n\n'):line+'\n\n'+v;
+        ta.value=v;wc();store.set('lentera.teks',v);toast('Topik dipilih. Mulai menulis!');
+      } else {toast('Tentukan topikmu sendiri, lalu mulai menulis');ta.focus()}
+    };
+    hs.push(b);sec.append(b);
+  });
+  function paintTopics(){hs.forEach((b,k)=>b.classList.toggle('sel',k===topicSel))}
+  paintTopics();wc();
+}
+
+/* ---------- Game 1: susun langkah ---------- */
+function buildGame1(sec){
+  nativeHead(sec,'Susun Langkah','Urutkan dengan benar');
+  const card=el('div','ncard');sec.append(card);navNative(sec,{});
+  let slots,used,checked;
+  const bankOrder=()=>shuffle(STEPS.map((_,k)=>k));
+  let bank0=bankOrder();
+  function reset(reshuffle){if(reshuffle)bank0=bankOrder();slots=Array(6).fill(null);checked=false;render()}
+  function render(msg='',cls=''){
+    used=new Set(slots.filter(v=>v!==null));
+    card.innerHTML=`<p class="ginfo">Ketuk langkah secara berurutan mulai dari ke-1. Ketuk kotak terisi untuk membatalkan.</p><div class="slots"></div><div class="bank"></div><div class="gmsg" style="color:${cls==='ok'?'var(--ok)':'var(--bad)'}">${msg}</div><div class="qbtns"></div>`;
+    const S=$('.slots',card);
+    slots.forEach((v,k)=>{
+      const b=el('button','slot'+(v!==null?' f':'')+(checked&&v!==null?(v===k?' ok':' no'):''),`<span class="n">${k+1}</span><span></span>`);
+      b.lastChild.textContent=v!==null?STEPS[v]:'';
+      b.onclick=()=>{if(v===null||checked)return;slots[k]=null;render()};
+      S.append(b);
+    });
+    const B=$('.bank',card);
+    bank0.filter(v=>!used.has(v)).forEach(v=>{
+      const c=el('button','chip',STEPS[v]);
+      c.onclick=()=>{if(checked)return;const k=slots.indexOf(null);if(k<0)return;slots[k]=v;render()};
+      B.append(c);
+    });
+    const btns=$('.qbtns',card);
+    const full=slots.every(v=>v!==null);
+    const chk=el('button','pill','Periksa');chk.disabled=!full||checked;
+    chk.onclick=()=>{
+      checked=true;const n=slots.filter((v,k)=>v===k).length;
+      if(n===6)render('🎉 Hebat! Semua urutan sudah benar.','ok');
+      else render(`${n} dari 6 langkah sudah tepat. Ketuk “Coba Lagi”.`,'no');
+    };
+    const rs=el('button','pill alt',checked&&slots.some((v,k)=>v!==k)?'Coba Lagi':'Acak Ulang');
+    rs.onclick=()=>reset(true);
+    btns.append(chk,rs);
+  }
+  reset(false);
+}
+
+/* ---------- Game 2: cocokkan struktur ---------- */
+function buildGame2(sec){
+  nativeHead(sec,'Cocokkan Struktur','Tentukan bagian anekdot');
+  const card=el('div','ncard');sec.append(card);navNative(sec,{});
+  let items,pick,checked;
+  function reset(){items=shuffle(MATCH);pick=items.map(()=>-1);checked=false;render()}
+  function render(msg='',ok=false){
+    card.innerHTML=`<p class="ginfo">Ketuk bagian struktur yang cocok untuk tiap potongan teks.</p><div class="mlist"></div><div class="gmsg" style="color:${ok?'var(--ok)':'var(--bad)'}">${msg}</div><div class="qbtns"></div>`;
+    const L=$('.mlist',card);
+    items.forEach((it,k)=>{
+      const m=el('div','mcard'+(checked?(pick[k]===it.a?' ok':' no'):''),'<q></q><div class="mrow"></div>');
+      $('q',m).textContent='“'+it.t+'”';
+      PARTS.forEach((p,n)=>{
+        const c=el('button','mchip'+(pick[k]===n?' s':''),p);
+        if(checked){if(n===it.a)c.className='mchip right';else if(pick[k]===n)c.className='mchip wrong'}
+        c.onclick=()=>{if(checked)return;pick[k]=n;render()};
+        $('.mrow',m).append(c);
+      });
+      L.append(m);
+    });
+    const btns=$('.qbtns',card);
+    const chk=el('button','pill','Periksa');chk.disabled=checked||pick.includes(-1);
+    chk.onclick=()=>{checked=true;const n=items.filter((it,k)=>pick[k]===it.a).length;render(n===5?'🎉 Sempurna! Semua bagian tepat.':`${n} dari 5 tepat. Lihat jawaban yang benar di atas.`,n===5)};
+    const rs=el('button','pill alt',checked?'Main Lagi':'Acak Ulang');rs.onclick=reset;
+    btns.append(chk,rs);
+  }
+  reset();
+}
+
+/* ---------- Bangun semua halaman ---------- */
+Object.entries(PAGES).forEach(([id,p])=>{
+  const sec=el('section','page'+(p.native?' native':''));sec.id='p-'+id;
+  if(p.img)sec.style.backgroundImage=`url("${IMGS[p.img]}")`;
+  if(p.build)p.build(sec);
+  if(p.extra&&typeof p.extra==='function')p.extra(sec);
+  (p.hs||[]).forEach(h=>{
+    const [x,y,w,hh]=h.r;const b=el('button','hs');
+    b.style.cssText=`left:${x}px;top:${y}px;width:${w}px;height:${hh}px`;b.setAttribute('aria-label',h.label||'');
+    b.onclick=()=>act(h);sec.append(b);
+  });
+  stage.append(sec);
+});
+/* skala layar */
+function fit(){
+  const a=document.activeElement;if(a&&a.tagName==='TEXTAREA')return;
+  const vp=$('#viewport'),cs=getComputedStyle(vp),sd=document.querySelector('.side'),
+    sideW=sd&&getComputedStyle(sd).display!=='none'?2*260:0,
+    w=vp.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight)-sideW,
+    h=vp.clientHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom),
+    s=Math.max(.05,Math.min(w/1080,h/1920));
+  stage.style.transform=`scale(${s})`;wrap.style.width=1080*s+'px';wrap.style.height=1920*s+'px';
+}
+addEventListener('resize',fit);addEventListener('orientationchange',()=>setTimeout(fit,250));
+document.addEventListener('focusout',()=>setTimeout(fit,300));
+fit();
+
+if(location.hash==='#debug')document.body.classList.add('debug');
+stack.push('splash');try{history.replaceState({n:1},'')}catch(e){}
+show('splash');
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){if($('#vid').classList.contains('on'))closeVideo();else if($('#zoom').classList.contains('on'))$('#zoom').classList.remove('on')}});
+</script>
+</body>
+</html>
